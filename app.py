@@ -4,12 +4,15 @@ import plotly.express as px
 import pandas as pd
 import datetime
 
+itemId = "09c325f8-2fc0-483b-a33d-92851d96b525"
+
 req = requests.post("https://545xzt1qw1.execute-api.us-east-1.amazonaws.com",
   json={
     "query": """
       query getItem($itemId: ID!) {
         item(id: $itemId) {
           name
+          imgUrl
           prices {
             createdAt
             price
@@ -18,7 +21,7 @@ req = requests.post("https://545xzt1qw1.execute-api.us-east-1.amazonaws.com",
       }
     """,
     "variables": {
-        "itemId": "15ffe0c9-8e92-4775-bd17-a1c492b0d3fc"
+        "itemId": itemId
     }    
   }
 )
@@ -35,18 +38,13 @@ df.rename(columns={'price': 'Price', 'createdAt': 'Date'}, inplace=True)
 
 print(df.head())
 
-
 app = Dash(__name__)
-
 app.layout = html.Div([
     html.H1(f"Price History for {res['data']['item']['name']}"),
+    html.Img(src=res['data']['item']['imgUrl']),
     dcc.Graph(id='graph'),
-    
     dcc.Dropdown(
         id='dropdown',
-        options=[
-            {'label': 'All Time', 'value': 'all'},
-        ],
         value='all'
     )
 ])
